@@ -1,14 +1,3 @@
-tcpProxy
-========
-
-python tcp proxy support daemon run
-
-configuration backend server
-
-tcp connection poll
-
-unix domain socket local listen
-
 
 
 appLib:

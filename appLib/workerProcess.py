@@ -56,5 +56,5 @@ class workerProcess(listenService.listenService):
         self.pre_start()
         listenService.listenService.__init__(self, self.connConf['socketfile'], int( self.connConf['backlog'] ),_logObj= self.logObj, _processObj=self.connObj )
         #开启epoll
-        asyncoreEpoll.loop()
+        asyncoreEpoll.loop(use_poll=True)
 #def __init__( self, _socketFile=None, _reciveSize=1024, _logObj=None, _processObj=None ):

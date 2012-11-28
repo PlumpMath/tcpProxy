@@ -31,10 +31,10 @@ class listenService( asyncoreEpoll.dispatcher ):
     def handle_accept(self):
         #接收client的连线
         self.clientSocket, address = self.accept()
-        self.logObj.info( "new client from:%s" % self.clientSocket )
+        #self.logObj.info( "new client from:%s" % self.clientSocket )
         #初始化客户端连接请求，后续处理交由epoll接管
         #self.clientSocketHandle = ClientAgent(self.clientSocket, self.processObj, self.logObj )
-        ClientAgent(self.clientSocket, self.processObj, self.logObj )
+        ClientAgent(self.clientSocket, self.processObj,_logObj=self.logObj )
 
     def handle_close( self ):
         self.logObj.info( "server shutdown!" )
@@ -56,29 +56,30 @@ class ClientAgent(asyncoreEpoll.dispatcher):
     def handle_read(self):
         self.reciveData = self.recv(MAX_RECV)
         if len( self.reciveData ) > 0:
-            self.logObj.debug( "recv:%s" % self.reciveData  )
+            #self.logObj.debug( "recv:%s" % self.reciveData  )
             try:
-                processValue =  self.processObj.do( self.reciveData )
-                self.logObj.info( "recv:%s|value:%s" % (self.reciveData, processValue ) )
-                self.sendData = processValue
+                self.sendData =  self.processObj.do( self.reciveData )
+                #self.logObj.info( "recv:%s|value:%s" % (self.reciveData, processValue ) )
+                #self.sendData = processValue
             except Exception as err:
                 self.logObj.info('tcpConnectionPoll error:%s'% str(err))
 
     #送出data到client,写完成后主动断开
-    def handle_write(self):
-        if len(self.sendData)>0:
+    def handle_write(self,sendData=""):
+        if self.sendData != "":
             sentLen = self.send( self.sendData )
-             #可能发不完
-            if sentLen < len( self.sendData ):
-                self.sendData = self.sendData[sentLen:]
-                self.logObj.info('handle_write() -> (%d) "%s"'%(  sentLen, self.sendData[:sentLen] ))
-            else:
-                self.logObj.info('handle_write() -> (%d) "%s"'%(  sentLen, self.sendData[:sentLen] ))
-                self.sendData=""
+            #可能发不完
+            #if sentLen < len( self.sendData ):
+            #    self.sendData = self.sendData[sentLen:]
+            #    self.logObj.info('handle_write() -> (%d) "%s"'%(  sentLen, self.sendData[:sentLen] ))
+            #else:
+            #    #self.logObj.info('handle_write() -> (%d) "%s"'%(  sentLen, self.sendData[:sentLen] ))
+            #    self.sendData=""
 
     def writeable(self):
-        return bool(len(self.sendData)>0)
+        return False#bool(len(self.sendData)>0)
 
     def handle_close(self):
-        self.logObj.info( "close connection : %s " % self.getpeername() )
+        self.processObj.disconnect()
+        self.logObj.info( "close connection : %s " % str( self.socket ) )
         self.close()

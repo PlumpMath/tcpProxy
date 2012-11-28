@@ -7,7 +7,7 @@ tcp连接池
 """
 
 #TCP最大接收数据长度
-MAX_RECV=4096
+MAX_RECV=8192
 
 class AuthenticationError(Exception):
     pass
@@ -141,7 +141,7 @@ class tcpConnectionPool(object):
             self.__init__(self.connection_class, self.max_connections,
                 **self.connection_kwargs)
 
-    def get_connection(self, command_name, *keys, **options):
+    def get_connection(self,  *keys, **options):
         "Get a connection from the pool"
         self._checkpid()
         try:
@@ -152,8 +152,9 @@ class tcpConnectionPool(object):
         return connection
     def do(self,cmdArgs ):
         try:
-            connObj = self.get_connection('')
+            connObj = self.get_connection()
             connObj.sendCommand( cmdArgs )
+            self.release(connObj)
             return connObj.readResponse()
         except ConnectionError as err:
             raise err

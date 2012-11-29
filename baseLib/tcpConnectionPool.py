@@ -7,7 +7,7 @@ tcp连接池
 """
 
 #TCP最大接收数据长度
-MAX_RECV=8192
+MAX_RECV=10240
 
 class AuthenticationError(Exception):
     pass

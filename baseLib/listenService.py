@@ -69,12 +69,12 @@ class ClientAgent(asyncoreEpoll.dispatcher):
         if self.sendData != "":
             sentLen = self.send( self.sendData )
             #可能发不完
-            #if sentLen < len( self.sendData ):
-            #    self.sendData = self.sendData[sentLen:]
-            #    self.logObj.info('handle_write() -> (%d) "%s"'%(  sentLen, self.sendData[:sentLen] ))
-            #else:
-            #    #self.logObj.info('handle_write() -> (%d) "%s"'%(  sentLen, self.sendData[:sentLen] ))
-            #    self.sendData=""
+            if sentLen < len( self.sendData ):
+                self.sendData = self.sendData[sentLen:]
+                self.logObj.info('handle_write() -> (%d) "%s"'%(  sentLen, self.sendData[:sentLen] ))
+            else:
+                #self.logObj.info('handle_write() -> (%d) "%s"'%(  sentLen, self.sendData[:sentLen] ))
+                self.sendData=""
 
     def writeable(self):
         return False#bool(len(self.sendData)>0)

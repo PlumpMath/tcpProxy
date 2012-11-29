@@ -16,7 +16,7 @@ def epoll(timeout=0.0, map=None):
         for fd, obj in map.items():
             flags = 0
             if obj.readable():
-                flags |= select.EPOLLIN | select.EPOLLPRI
+                flags |= select.EPOLLIN | select.EPOLLPRI| select.EPOLLET
             if obj.writable():
                 flags |= select.EPOLLOUT
             if flags:
@@ -35,10 +35,11 @@ def epoll(timeout=0.0, map=None):
             if obj is None:
                 continue
             readwrite(obj, flags)
-def loop(timeout=50.0, use_poll=False, map=None, count=None):
+def loop(timeout=5.0, use_poll=False, map=None, count=None):
     if map is None:
         map = socket_map
     if use_poll and hasattr(select, 'epoll'):
+        print "epoll"
         poll_fun = epoll
     else:
         if use_poll and hasattr(select, 'poll'):

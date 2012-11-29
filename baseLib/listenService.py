@@ -24,7 +24,6 @@ class listenService( asyncoreEpoll.dispatcher ):
         #self.create_socket( socket.AF_UNIX, socket.SOCK_DGRAM )
         self.set_reuse_addr()
         self.processObj = _processObj
-
         self.bind( self.socketFile )
         self.listen( self.backlog )
 

@@ -19,16 +19,9 @@ function getSocketObj( $socket="127.0.0.1:6379" )
 
 $socketFile = "/tmp/localhost-6379.sock";
 
-
-
-
 $socket= isset( $_REQUEST['socket'] )?$_REQUEST['socket']:'127.0.0.1:6379';
-$socket=$socketFile;
 $redisObj = getSocketObj( $socket );
 print_r( $redisObj );
-$beginTime = time();
-$i=0;
-while($i++<CMD_REPEAT_COUNT)
 $redisObj->set('a', '1');
 $redisObj->close();
 $endTime = time();

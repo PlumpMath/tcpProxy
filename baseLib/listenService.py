@@ -59,7 +59,8 @@ class ClientAgent(asyncoreEpoll.dispatcher):
         if len( self.reciveData ) > 0:
             self.logObj.debug( "recv:%s" % self.reciveData  )
             if ( self.reciveData == "QUIT"):
-                self.reciveData="QUIT"
+                self.reciveData=""
+		pass
             else:
                 try:
                     self.sendData =  self.processObj.do( self.reciveData )

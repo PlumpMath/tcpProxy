@@ -28,9 +28,10 @@ class listenService( asyncoreEpoll.dispatcher ):
         self.listen( self.backlog )
 
     def handle_accept(self):
+        self.logObj.debug( "handle accept begin!" )
         #接收client的连线
         self.clientSocket, address = self.accept()
-        #self.logObj.info( "new client from:%s" % self.clientSocket )
+        self.logObj.info( "new client from:%s:%s" % (self.clientSocket, address) )
         #初始化客户端连接请求，后续处理交由epoll接管
         #self.clientSocketHandle = ClientAgent(self.clientSocket, self.processObj, self.logObj )
         ClientAgent(self.clientSocket, self.processObj,_logObj=self.logObj )
@@ -53,15 +54,18 @@ class ClientAgent(asyncoreEpoll.dispatcher):
 
     #从client收到的data，直接扔给远端tcp,获取响应后，把响应数据回写sendData,epoll自动触发handle_write事件回写客户端
     def handle_read(self):
+        self.logObj.debug('handle_read begin!')
         self.reciveData = self.recv(MAX_RECV)
         if len( self.reciveData ) > 0:
-            #self.logObj.debug( "recv:%s" % self.reciveData  )
-            try:
-                self.sendData =  self.processObj.do( self.reciveData )
-                #self.logObj.info( "recv:%s|value:%s" % (self.reciveData, processValue ) )
-                #self.sendData = processValue
-            except Exception as err:
-                self.logObj.info('tcpConnectionPoll error:%s'% str(err))
+            self.logObj.debug( "recv:%s" % self.reciveData  )
+            if ( self.reciveData == "QUIT"):
+                self.reciveData="QUIT"
+            else:
+                try:
+                    self.sendData =  self.processObj.do( self.reciveData )
+                    self.logObj.debug( "recv:%s|value:%s" % (self.reciveData, self.sendData ) )
+                except Exception as err:
+                    self.logObj.info('tcpConnectionPoll error:%s'% str(err))
 
     #送出data到client,写完成后主动断开
     def handle_write(self,sendData=""):
@@ -72,13 +76,13 @@ class ClientAgent(asyncoreEpoll.dispatcher):
                 self.sendData = self.sendData[sentLen:]
                 self.logObj.info('handle_write() -> (%d) "%s"'%(  sentLen, self.sendData[:sentLen] ))
             else:
-                #self.logObj.info('handle_write() -> (%d) "%s"'%(  sentLen, self.sendData[:sentLen] ))
+                self.logObj.debug('handle_write() -> (%d) "%s"'%(  sentLen, self.sendData[:sentLen] ))
                 self.sendData=""
 
     def writeable(self):
         return False#bool(len(self.sendData)>0)
 
     def handle_close(self):
-        self.processObj.disconnect()
-        self.logObj.info( "close connection : %s " % str( self.socket ) )
+        #self.processObj.disconnect()
+        self.logObj.debug( "close connection : %s " % str( self.socket ) )
         self.close()
